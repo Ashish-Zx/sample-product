@@ -33,8 +33,8 @@ class CheckoutService:
                 # Unknown code: treat as no discount (real-world behaviour).
                 discount_cents = 0
             else:
-                # BUG (uncommitted, for demo): read promo as a dict -> TypeError
-                rate = promo_info["discount_rate"]
+                # Working version: PromoInfo is a typed model, read via attribute.
+                rate = promo_info.discount_rate
                 discount_cents = int(base * rate)
                 applied = promo_code
 
