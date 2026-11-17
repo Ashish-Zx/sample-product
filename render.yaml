@@ -1,0 +1,10 @@
+# Render Blueprint — Sample Product API (the app SentinelSRE watches).
+services:
+  - type: web
+    name: sample-product-api
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    autoDeploy: true

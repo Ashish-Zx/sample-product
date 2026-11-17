@@ -1,0 +1,10 @@
+# Sample product app — tiny FastAPI service used to test SentinelSRE.
+#
+# Endpoints:
+#   GET  /health                    -> liveness
+#   POST /api/checkout              -> creates an order (has a real bug to catch)
+#   GET  /api/orders/{order_id}     -> fetch a created order
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.4
+pydantic-settings==2.7.1
