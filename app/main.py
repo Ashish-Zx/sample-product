@@ -1,6 +1,8 @@
 import uuid
+from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
 
 from app.config import settings
 from app.schemas import OrderRequest, OrderResponse
@@ -10,6 +12,14 @@ app = FastAPI(title="Sample Product API", version="2.0.0")
 
 # One shared service instance (DI stand-in).
 service = CheckoutService()
+
+_INDEX = Path(__file__).resolve().parent / "static" / "index.html"
+
+
+@app.get("/", include_in_schema=False)
+def index() -> FileResponse:
+    """Serve the demo storefront UI."""
+    return FileResponse(_INDEX)
 
 
 @app.get("/health")

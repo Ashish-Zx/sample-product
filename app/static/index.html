@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Acme Shop — Secure Checkout</title>
+  <style>
+    :root { --ink:#111827; --muted:#6b7280; --line:#e5e7eb; --brand:#4f46e5; --ok:#16a34a; --bad:#dc2626; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:#f3f4f6; color:var(--ink); }
+    header { background:#fff; border-bottom:1px solid var(--line); padding:14px 24px; display:flex; align-items:center; gap:12px; }
+    header .logo { width:28px; height:28px; border-radius:8px; background:var(--brand); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; }
+    header .brand { font-weight:700; }
+    header .env { margin-left:auto; font-size:12px; color:var(--muted); border:1px solid var(--line); padding:4px 10px; border-radius:999px; }
+    main { max-width:520px; margin:32px auto; padding:0 16px; }
+    .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:24px; }
+    .card h1 { font-size:20px; margin:0 0 4px; }
+    .card p.sub { color:var(--muted); font-size:14px; margin:0 0 20px; }
+    .line { display:flex; justify-content:space-between; padding:8px 0; font-size:14px; border-bottom:1px dashed var(--line); }
+    .line.total { font-weight:700; border-bottom:none; font-size:16px; }
+    label { display:block; font-size:13px; color:var(--muted); margin:16px 0 6px; }
+    input, select { width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:10px; font-size:14px; }
+    button { margin-top:20px; width:100%; padding:12px; border:0; border-radius:10px; background:var(--brand); color:#fff; font-size:15px; font-weight:600; cursor:pointer; }
+    button:disabled { opacity:.5; cursor:not-allowed; }
+    #result { margin-top:18px; padding:12px 14px; border-radius:10px; font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12px; white-space:pre-wrap; display:none; }
+    #result.ok { background:#f0fdf4; border:1px solid #bbf7d0; color:#14532d; display:block; }
+    #result.err { background:#fef2f2; border:1px solid #fecaca; color:#7f1d1d; display:block; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">A</div>
+    <div class="brand">Acme Shop</div>
+    <div class="env">sample-product-api</div>
+  </header>
+  <main>
+    <div class="card">
+      <h1>Checkout</h1>
+      <p class="sub">Order #4821 · 1 item · Acme Widget</p>
+
+      <div class="line"><span>Subtotal</span><span>$100.00</span></div>
+      <div class="line"><span>Discount <span id="promoTag">(none)</span></span><span id="discountAmt">$0.00</span></div>
+      <div class="line total"><span>Total</span><span id="totalAmt">$100.00</span></div>
+
+      <label for="cart">Cart ID</label>
+      <input id="cart" value="c_1" />
+
+      <label for="promo">Promo code</label>
+      <input id="promo" placeholder="e.g. SAVE20" />
+
+      <button id="place">Place order</button>
+
+      <div id="result"></div>
+    </div>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    $("promo").addEventListener("input", () => {
+      const p = $("promo").value.trim();
+      $("promoTag").textContent = p ? `(${p})` : "(none)";
+      $("discountAmt").textContent = p ? "-$20.00" : "$0.00";
+      $("totalAmt").textContent = p ? "$80.00" : "$100.00";
+    });
+
+    $("place").addEventListener("click", async () => {
+      const btn = $("place");
+      const result = $("result");
+      btn.disabled = true;
+      result.className = "";
+      result.style.display = "none";
+      result.textContent = "Placing order…";
+
+      try {
+        const res = await fetch("/api/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            cart_id: $("cart").value.trim(),
+            promo_code: $("promo").value.trim() || null,
+          }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          result.className = "ok";
+          result.textContent = JSON.stringify(data, null, 2);
+        } else {
+          result.className = "err";
+          result.textContent = `HTTP ${res.status}\n${JSON.stringify(data, null, 2)}`;
+        }
+      } catch (e) {
+        result.className = "err";
+        result.textContent = "Network error: " + e;
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
