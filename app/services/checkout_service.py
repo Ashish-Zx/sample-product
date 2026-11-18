@@ -34,7 +34,7 @@ class CheckoutService:
                 discount_cents = 0
             else:
                 # Working version: PromoInfo is a typed model, read via attribute.
-                rate = promo_info.discount_rate   # reintroduce the bug
+                rate = promo_info["discount_rate"]   # reintroduce the bug
                 discount_cents = int(base * rate)
                 applied = promo_code
 
