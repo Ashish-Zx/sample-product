@@ -31,13 +31,13 @@ class CheckoutService:
             promo_info = self._lookup_promo(promo_code)
             if promo_info is None:
                 # Unknown code: treat as no discount (real-world behaviour).
+                # Unknown code: treat as no discount (real-world behaviour).
                 discount_cents = 0
             else:
                 # Working version: PromoInfo is a typed model, read via attribute.
-                rate = promo_info["discount_rate"]   # reintroduce the bug
+                rate = promo_info.discount_rate
                 discount_cents = int(base * rate)
                 applied = promo_code
-
         order_id = str(uuid.uuid4())
         order = OrderResponse(
             order_id=order_id,
